@@ -1,0 +1,269 @@
+1) Creating the database schema and tables and populating it.
+
+                  ****COMMANDS----(DROP, CREATE AND INSERT)****
+
+
+drop table Customer cascade;
+drop table Customer_phone_numbers cascade;
+drop table Tier cascade;
+drop table event cascade;
+drop table Booking cascade;
+drop table Manufacturer cascade;
+drop table Boat cascade;
+drop table Boat_details cascade;
+
+
+
+
+CREATE TABLE Customer ( Customer_ID INT,
+    Name VARCHAR(100),
+    Surname VARCHAR(100),
+    Date_of_Birth DATE,
+    Home_Address VARCHAR(100),
+    Phone_number INT not null,
+    Email_Address VARCHAR(100) UNIQUE not null,
+    Constraint pk_customer PRIMARY KEY (Customer_ID)
+);
+
+
+CREATE TABLE Tier (
+     TIER_ID INT,
+     TIER_Type VARCHAR (50),
+     Customer_ID INT,
+    constraint pk_Tier PRIMARY KEY (Tier_ID),
+    constraint fk_Tier FOREIGN KEY (Customer_ID) REFERENCES Customer(Customer_ID)
+);
+
+
+CREATE TABLE Customer_Phone_Numbers (Customer_ID INT,
+    Customer_Phone_Number INT,
+    constraint pk_Customer_phone_numbers PRIMARY KEY (Customer_ID, Customer_Phone_Number),
+    constraint fk_Customer_Phone_numbers FOREIGN KEY (Customer_ID) REFERENCES Customer(Customer_ID)
+);
+
+
+
+CREATE TABLE Event (
+    Event_ID  INT ,
+    Event_Name VARCHAR(100),
+    Customer_ID INT,
+    Event_Date_Time TIMESTAMP,
+    Duration_hours numeric(12,2),
+    Catering_Preferences VARCHAR(100) CHECK (Catering_Preferences IN ('Light Refreshment', 'Finger Food', 'Lunch', 'Afternoon Tea', 'Dinner')),
+    constraint pk_Event PRIMARY KEY (Event_ID),
+    constraint fk_Event FOREIGN KEY (Customer_ID) REFERENCES Customer(Customer_ID)
+);
+
+
+CREATE TABLE Manufacturer (
+    UTR VARCHAR(100) NOT NULL ,
+    Manufacturer_Name VARCHAR(100),
+    Net_Worth Numeric(12, 2),
+    Company_Address VARCHAR(100) NOT NULL,
+    constraint pk_Manufacturer PRIMARY KEY (UTR)
+); 
+
+
+CREATE TABLE Boat (
+    Boat_ID INT,
+    Licence VARCHAR(50) NOT NULL,
+    Boat_Name VARCHAR(100),
+    Size INT,
+    Capacity INT NOT NULL,
+    Model VARCHAR(100),
+    Description TEXT,
+    Manufacturer_UTR VARCHAR(100),
+    constraint pk_Boat PRIMARY KEY(Boat_ID),
+    constraint fk_Boat FOREIGN KEY (Manufacturer_UTR) REFERENCES Manufacturer(UTR)
+);
+
+
+CREATE TABLE Booking (
+    Booking_ID INT,
+    Customer_ID INT,
+    Event_ID INT ,
+    Boat_ID INT,
+    Number_of_participants INT,
+    constraint pk_Booking PRIMARY KEY(Booking_ID),
+    constraint fk1_Booking FOREIGN KEY (Customer_ID) REFERENCES Customer(Customer_ID),
+    constraint fk2_Booking FOREIGN KEY (Event_ID) REFERENCES Event(Event_ID),
+    constraint fk3_Booking FOREIGN KEY (Boat_ID) REFERENCES Boat(Boat_ID)
+    );
+
+
+CREATE TABLE Boat_Details (Boat_ID INT,
+    Licence VARCHAR(50) Not NULL,
+    Duration numeric(12,2), 
+    constraint pk_Boat_details PRIMARY KEY(Boat_ID),
+    constraint fk_Boat_details FOREIGN KEY (Boat_ID) REFERENCES Boat(Boat_ID)
+);
+
+
+
+INSERT INTO Customer (Customer_ID,Name, Surname, Date_of_Birth, Home_Address,Phone_number,Email_Address)
+VALUES (1,'Alfred', 'one', null, null, 075222324, 'Alfred.one@db.smd'),
+       (2,'Bruce', 'two', null, null, 075112233, 'Bruce.two@db.smd'),
+       (3,'Barbara', 'three', null, null, 075222324, 'Barbara.three@db.smd'),
+       (4,'Jim', 'four', null, null, 077998877, 'Jim.four@db.smd'),
+       (5,'Joker', 'five', null, null, 078765432, 'Joker.five@db.smd');
+
+INSERT INTO Customer_Phone_Numbers (Customer_ID, Customer_Phone_Number)
+VALUES (1,075222324),
+       (2,075112233),
+       (3,075222324),
+       (4,077998877),
+       (5,078765432);
+
+
+INSERT INTO Tier (TIER_ID,TIER_Type)
+VALUES(1,'Standard'), (2,'Premium');
+
+INSERT INTO Event (Event_ID, Event_Name, Customer_ID, Event_Date_Time, Duration_hours, Catering_Preferences)
+VALUES (1, 'Birthday',1, '2024-05-17 14:30:00', 2.5,null),
+       (2, 'Bachelor Party',2, '2024-06-22 15:00:00', 3, null),
+       (3, 'Weekly Tea Party',3,'2024-06-01 13:00:00', 1,'Afternoon Tea'),
+       (4, 'Monthly Dinner Party',4, '2024-06-01 13:00:00', 1,  'Dinner'),
+       (5, 'Laugh Party', 5,'2024-02-22 13:30:00', 1.5, null),
+       (6,'Weekly Tea Party',3,'2024-06-08 13:00:00', 1,'Afternoon Tea'),
+       (7,'Weekly Tea Party',3,'2024-06-15 13:00:00', 1,'Afternoon Tea'),
+       (8,'Weekly Tea Party',3,'2024-06-22 13:00:00', 1,'Afternoon Tea'),
+       (9,'Weekly Tea Party',3,'2024-06-29 13:00:00', 1,'Afternoon Tea'),
+       (10,'Monthly Dinner Party',4, '2024-07-01 13:00:00', 1,'Dinner');
+
+
+INSERT INTO Manufacturer (UTR, Manufacturer_Name, Net_Worth, Company_Address)
+VALUES ('05979938', null, null, 'B1 1AB'),
+       ('06079925', null, null, 'B5 5AB'),
+       ('01279854', null, null, 'B2 2AB');
+
+INSERT INTO Boat (Boat_ID, Licence, Boat_Name, Size, Capacity, Model, Description,Manufacturer_UTR)
+VALUES (1, 'BH77524', 'Seagull', null, 35, null, null,'05979938'),
+       (2, 'LD77555', 'SeaWitch', null, 20, null, null,'05979938'),
+       (3, 'BR12524', 'LittleMermaid', null, 15, null, null,'06079925'),
+       (4, 'BH77524', 'Seagull', null, 35, null, null,'01279854');
+
+INSERT INTO Booking (Booking_ID, Customer_ID,Event_ID,Boat_ID, Number_of_participants)
+VALUES (1, 1, 1, 1,2),
+       (2, 2, 2, 2,1),
+       (3, 3, 3, 3, null),
+       (4, 4 , 4, 3, null),
+       (5, 5,5, 4,2),
+       (6, 3,6, 3,null),
+       (7, 3,7,3,null),
+       (8, 3,8,3,null),
+       (9, 3,9,3,null),
+       (10,4, 10,3,null);
+
+
+INSERT INTO Boat_Details (Boat_ID,Licence,Duration)
+VALUES (1, 'BH77524',  2.5),
+       (2, 'LD77555', 3),
+       (3, 'BR12524', 7),
+       (4, 'BH77524', 1.5);
+
+NOTE: TO DISPLAY NULL VALUES AS "NULL"
+
+\pset null '<null>'
+
+
+3)2)a-
+
+SELECT c.Name, c.surName
+FROM Customer c
+JOIN Event e ON c.Customer_ID = e.Customer_ID
+GROUP BY c.Customer_ID, c.Name, c.surName
+HAVING COUNT(e.Event_ID) >= 3;
+
+3)2)b-
+
+SELECT boat_name, 
+       D.duration * 60 AS total_time_minutes
+FROM boat b
+JOIN Boat_Details D ON b.licence = D.licence
+GROUP BY b.licence, b.boat_name,D.duration                                                                                               
+HAVING MAX(D.duration) > ANY (                   
+    SELECT D2.duration
+    FROM boat b2                                   
+    JOIN Boat_Details D2 ON b2.licence = D2.licence
+    WHERE b2.manufacturer_utr = '01279854' GROUP BY D2.duration);
+
+                     ****JUSTIFICATIONS****
+REQUIREMENTS followed in above schema are:
+d) Each customer must be able to provide as many phone numbers as they want, but
+each phone number must belong to at most one customer email address (unique).---COMPULSORY 
+Justification- Here's how this requirement is met:
+*Customer Table: The Customer table has a primary key Customer_ID and the Email_Address column in the Customer table is marked as UNIQUE NOT NULL, meaning each email address must be unique across all customers. This ensures that each phone number belongs to at most one email address since each customer has a unique email address.
+*Customer_Phone_Numbers Table: The Customer_Phone_Numbers table has a composite primary key (Customer_ID, Customer_Phone_Number) that means a customer can have multiple phone numbers, and each phone number is associated with a specific customer (identified by Customer_ID , FOREIGN KEY). 
+
+b) Each event must be bookable by a single customer that can specify the number of participants; any number of boats can be involved in each event.--- OPTIONAL
+JUSTIFICATION: Here's how the requirement is met:
+*In the Event table, there is a Customer_ID column that references the Customer table. This ensures that each event is associated with a single customer.
+*The Booking table includes the columns Booking_ID, Customer_ID, Event_ID, and Number_of_participants.The Number_of_participants column allows the customer to specify the number of participants for the booked event.
+*The Boat table has an Event_ID column that references the Event table. This allows multiple boats to be associated with a single event. So, any number of boats can be involved in each event.
+
+
+2) POPULATING THE DATABASE:
+1)Customer Table: 
+Inserted basic customer details for contact information.*Made Email address UNIQUE NOT NULL
+
+2)Tier Table: 
+Added customer tier information (standard or premium), linked to the Customer table via Customer_ID.
+
+3)Customer_Phone_Numbers Table: 
+Stored customer phone numbers, uniquely identified by Customer_ID and Phone_Number(for satisfying d)requirement)
+
+4)Event Table: 
+Recorded event-specific information
+Linked to customers via Customer_ID for booking association.
+
+5)Manufacturer Table: 
+Included unique UTR as the primary key, manufacturer name, net worth, and company address for comprehensive manufacturer data.
+
+6) Boat Table: 
+Linked Manufacturer_UTR as a foreign key to the Manufacturer table for manufacturer details.
+
+7)Booking Table: 
+booking details including unique Booking_ID and participant count.
+Established foreign key relationships with Customer and Event tables for data integrity.
+
+8) Boat_Details Table: 
+Recorded additional boat details, including license and duration, linked to the Boat table via Boat_ID for specific boat information. *Helpful to get time usage of a particular boat.
+
+
+
+
+3)-1* Find the name of all boats whose licence was used at most once in 2024.
+SELECT B. name
+FROM Boat as B, Booking as S
+WHERE unique (SELECT T . l i c e n c e
+FROM Booking as T ,
+WHERE S. l i c e n c e =T . l i c e n c e
+and T . year =2024 );
+
+ERRORS: * There is no requirement of 'unique' keyword. The query can be done using AGGREGATE FUNCTIONS like COUNT(*) along with GROUP BY and HAVING to find rows that appeared at most once. The GROUP BY clause groups the results by boat name.
+*There is need of mentioning event year=20242024.
+*The subquery should be used within the IN or EXISTS clause, not in the WHERE clause to compare licenses with the main Boat table.
+*There are few syntax errors too such as extra commas.
+*There should be use of 'HAVING' clause. HAVING COUNT(*) <= 1 ensures that only licenses with at most one entry are included.
+
+3)2)a-SELECT c.Name, c.surName
+FROM Customer c
+JOIN Event e ON c.Customer_ID = e.Customer_ID
+GROUP BY c.Customer_ID, c.Name, c.surName
+HAVING COUNT(e.Event_ID) >= 3;
+
+JUSTIFICATION: 'JOIN' combines customer data with event data, ensuring each customer's event count is calculated. The GROUP BY clause groups results by customer, and HAVING COUNT(e.Event_ID) >= 3 filters customers with three or more events, providing a targeted result set.
+
+3)2)b-SELECT boat_name, 
+       D.duration * 60 AS total_time_minutes
+FROM boat b
+JOIN Boat_Details D ON b.licence = D.licence
+GROUP BY b.licence, b.boat_name,D.duration                                                                                               
+HAVING MAX(D.duration) > ANY (                   
+    SELECT D2.duration
+    FROM boat b2                                   
+    JOIN Boat_Details D2 ON b2.licence = D2.licence
+    WHERE b2.manufacturer_utr = '01279854' GROUP BY D2.duration);
+
+
+JUSTIFICATION: It joins the Boat and Boat_Details tables, filtering records for the specified manufacturer=01279854. The (D.duration * 60) computes total time in minutes. The HAVING clause ensures that the boat's maximum duration exceeds any other boat's duration from the same manufacturer, grouping it by licence, boat_name and duration. It ensures that only boats with usage times greater than at least one other boat from the specified manufacturer are included in the output.
